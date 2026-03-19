@@ -40,4 +40,4 @@ packages/opencode/bin/dwtcode
 packages/opencode/script/deploy-build.sh
 packages/opencode/src/cli/cmd/tui/context/theme/dwtcode.json
 
-test/
+/test/

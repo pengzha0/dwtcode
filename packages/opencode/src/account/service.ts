@@ -148,8 +148,15 @@ export class AccountService extends ServiceMap.Service<AccountService, AccountSe
           mapAccountServiceError("HTTP request failed"),
         )
 
+      const executeEffect = <E>(request: Effect.Effect<HttpClientRequest.HttpClientRequest, E>) =>
+        request.pipe(
+          Effect.flatMap((req) => http.execute(req)),
+          mapAccountServiceError("HTTP request failed"),
+        )
+
       // Returns a usable access token for a stored account row, refreshing and
       // persisting it when the cached token has expired.
+
       const resolveToken = Effect.fnUntraced(function* (row: AccountRow) {
         const now = yield* Clock.currentTimeMillis
         if (row.token_expiry && row.token_expiry > now) return row.access_token
@@ -292,7 +299,7 @@ export class AccountService extends ServiceMap.Service<AccountService, AccountSe
       })
 
       const poll = Effect.fn("AccountService.poll")(function* (input: Login) {
-        const response = yield* executeEffectOk(
+        const response = yield* executeEffect(
           HttpClientRequest.post(`${input.server}/auth/device/token`).pipe(
             HttpClientRequest.acceptJson,
             HttpClientRequest.schemaBodyJson(DeviceTokenRequest)(
