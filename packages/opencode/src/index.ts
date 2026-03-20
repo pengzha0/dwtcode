@@ -54,7 +54,7 @@ process.on("SIGHUP", () => process.exit())
 
 let cli = yargs(hideBin(process.argv))
   .parserConfiguration({ "populate--": true })
-  .scriptName("opencode")
+  .scriptName("dwtcode")
   .wrap(100)
   .help("help", "show help")
   .alias("help", "h")
@@ -81,15 +81,15 @@ let cli = yargs(hideBin(process.argv))
     })
 
     process.env.AGENT = "1"
-    process.env.OPENCODE = "1"
-    process.env.OPENCODE_PID = String(process.pid)
+    process.env.DWTCODE = "1"
+    process.env.DWTCODE_PID = String(process.pid)
 
-    Log.Default.info("opencode", {
+    Log.Default.info("dwtcode", {
       version: Installation.VERSION,
       args: process.argv.slice(2),
     })
 
-    const marker = path.join(Global.Path.data, "opencode.db")
+    const marker = Database.Path
     if (!(await Filesystem.exists(marker))) {
       const tty = process.stderr.isTTY
       process.stderr.write("Performing one time database migration, may take a few minutes..." + EOL)

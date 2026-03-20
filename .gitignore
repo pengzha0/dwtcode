@@ -28,3 +28,16 @@ opencode-dev
 logs/
 *.bun-build
 tsconfig.tsbuildinfo
+packages/opencode/dwtcode-deploy*
+
+# dwtcode local files
+.claude/
+CLAUDE.md
+intranet-deploy-guide.md
+models-dev-api.json
+packages/opencode/.tmp-install/
+packages/opencode/bin/dwtcode
+packages/opencode/script/deploy-build.sh
+packages/opencode/src/cli/cmd/tui/context/theme/dwtcode.json
+
+test/

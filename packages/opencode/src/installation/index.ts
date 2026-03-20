@@ -9,8 +9,8 @@ import { Process } from "@/util/process"
 import { buffer } from "node:stream/consumers"
 
 declare global {
-  const OPENCODE_VERSION: string
-  const OPENCODE_CHANNEL: string
+  const DWTCODE_VERSION: string
+  const DWTCODE_CHANNEL: string
 }
 
 export namespace Installation {
@@ -91,7 +91,7 @@ export namespace Installation {
   }
 
   export async function method() {
-    if (process.execPath.includes(path.join(".opencode", "bin"))) return "curl"
+    if (process.execPath.includes(path.join(".dwtcode", "bin"))) return "curl"
     if (process.execPath.includes(path.join(".local", "bin"))) return "curl"
     const exec = process.execPath.toLowerCase()
 
@@ -114,15 +114,15 @@ export namespace Installation {
       },
       {
         name: "brew" as const,
-        command: () => text(["brew", "list", "--formula", "opencode"]),
+        command: () => text(["brew", "list", "--formula", "dwtcode"]),
       },
       {
         name: "scoop" as const,
-        command: () => text(["scoop", "list", "opencode"]),
+        command: () => text(["scoop", "list", "dwtcode"]),
       },
       {
         name: "choco" as const,
-        command: () => text(["choco", "list", "--limit-output", "opencode"]),
+        command: () => text(["choco", "list", "--limit-output", "dwtcode"]),
       },
     ]
 
@@ -137,7 +137,7 @@ export namespace Installation {
     for (const check of checks) {
       const output = await check.command()
       const installedName =
-        check.name === "brew" || check.name === "choco" || check.name === "scoop" ? "opencode" : "opencode-ai"
+        check.name === "brew" || check.name === "choco" || check.name === "scoop" ? "dwtcode" : "opencode-ai"
       if (output.includes(installedName)) {
         return check.name
       }
@@ -154,11 +154,11 @@ export namespace Installation {
   )
 
   async function getBrewFormula() {
-    const tapFormula = await text(["brew", "list", "--formula", "anomalyco/tap/opencode"])
-    if (tapFormula.includes("opencode")) return "anomalyco/tap/opencode"
-    const coreFormula = await text(["brew", "list", "--formula", "opencode"])
-    if (coreFormula.includes("opencode")) return "opencode"
-    return "opencode"
+    const tapFormula = await text(["brew", "list", "--formula", "anomalyco/tap/dwtcode"])
+    if (tapFormula.includes("dwtcode")) return "anomalyco/tap/dwtcode"
+    const coreFormula = await text(["brew", "list", "--formula", "dwtcode"])
+    if (coreFormula.includes("dwtcode")) return "dwtcode"
+    return "dwtcode"
   }
 
   export async function upgrade(method: Method, target: string) {
@@ -207,10 +207,10 @@ export namespace Installation {
       }
 
       case "choco":
-        result = await Process.run(["choco", "upgrade", "opencode", `--version=${target}`, "-y"], { nothrow: true })
+        result = await Process.run(["choco", "upgrade", "dwtcode", `--version=${target}`, "-y"], { nothrow: true })
         break
       case "scoop":
-        result = await Process.run(["scoop", "install", `opencode@${target}`], { nothrow: true })
+        result = await Process.run(["scoop", "install", `dwtcode@${target}`], { nothrow: true })
         break
       default:
         throw new Error(`Unknown method: ${method}`)
@@ -231,9 +231,9 @@ export namespace Installation {
     await Process.text([process.execPath, "--version"], { nothrow: true })
   }
 
-  export const VERSION = typeof OPENCODE_VERSION === "string" ? OPENCODE_VERSION : "local"
-  export const CHANNEL = typeof OPENCODE_CHANNEL === "string" ? OPENCODE_CHANNEL : "local"
-  export const USER_AGENT = `opencode/${CHANNEL}/${VERSION}/${Flag.OPENCODE_CLIENT}`
+  export const VERSION = typeof DWTCODE_VERSION === "string" ? DWTCODE_VERSION : "local"
+  export const CHANNEL = typeof DWTCODE_CHANNEL === "string" ? DWTCODE_CHANNEL : "local"
+  export const USER_AGENT = `dwtcode/${CHANNEL}/${VERSION}/${Flag.DWTCODE_CLIENT}`
 
   export async function latest(installMethod?: Method) {
     const detectedMethod = installMethod || (await method())
@@ -247,7 +247,7 @@ export namespace Installation {
         if (!version) throw new Error(`Could not detect version for tap formula: ${formula}`)
         return version
       }
-      return fetch("https://formulae.brew.sh/api/formula/opencode.json")
+      return fetch("https://formulae.brew.sh/api/formula/dwtcode.json")
         .then((res) => {
           if (!res.ok) throw new Error(res.statusText)
           return res.json()
@@ -272,7 +272,7 @@ export namespace Installation {
 
     if (detectedMethod === "choco") {
       return fetch(
-        "https://community.chocolatey.org/api/v2/Packages?$filter=Id%20eq%20%27opencode%27%20and%20IsLatestVersion&$select=Version",
+        "https://community.chocolatey.org/api/v2/Packages?$filter=Id%20eq%20%27dwtcode%27%20and%20IsLatestVersion&$select=Version",
         { headers: { Accept: "application/json;odata=verbose" } },
       )
         .then((res) => {
@@ -283,7 +283,7 @@ export namespace Installation {
     }
 
     if (detectedMethod === "scoop") {
-      return fetch("https://raw.githubusercontent.com/ScoopInstaller/Main/master/bucket/opencode.json", {
+      return fetch("https://raw.githubusercontent.com/ScoopInstaller/Main/master/bucket/dwtcode.json", {
         headers: { Accept: "application/json" },
       })
         .then((res) => {

@@ -162,7 +162,7 @@ export const McpAuthCommand = cmd({
 
         if (oauthServers.length === 0) {
           prompts.log.warn("No OAuth-capable MCP servers configured")
-          prompts.log.info("Remote MCP servers support OAuth by default. Add a remote server in opencode.json:")
+          prompts.log.info("Remote MCP servers support OAuth by default. Add a remote server in dwtcode.json:")
           prompts.log.info(`
   "mcp": {
     "my-server": {
@@ -381,11 +381,11 @@ export const McpLogoutCommand = cmd({
 })
 
 async function resolveConfigPath(baseDir: string, global = false) {
-  // Check for existing config files (prefer .jsonc over .json, check .opencode/ subdirectory too)
-  const candidates = [path.join(baseDir, "opencode.json"), path.join(baseDir, "opencode.jsonc")]
+  // Check for existing config files (prefer .jsonc over .json, check .dwtcode/ subdirectory too)
+  const candidates = [path.join(baseDir, "dwtcode.json"), path.join(baseDir, "dwtcode.jsonc")]
 
   if (!global) {
-    candidates.push(path.join(baseDir, ".opencode", "opencode.json"), path.join(baseDir, ".opencode", "opencode.jsonc"))
+    candidates.push(path.join(baseDir, ".dwtcode", "dwtcode.json"), path.join(baseDir, ".dwtcode", "dwtcode.jsonc"))
   }
 
   for (const candidate of candidates) {
@@ -394,7 +394,7 @@ async function resolveConfigPath(baseDir: string, global = false) {
     }
   }
 
-  // Default to opencode.json if none exist
+  // Default to dwtcode.json if none exist
   return candidates[0]
 }
 
@@ -662,7 +662,7 @@ export const McpDebugCommand = cmd({
               params: {
                 protocolVersion: "2024-11-05",
                 capabilities: {},
-                clientInfo: { name: "opencode-debug", version: Installation.VERSION },
+                clientInfo: { name: "dwtcode-debug", version: Installation.VERSION },
               },
               id: 1,
             }),
@@ -703,7 +703,7 @@ export const McpDebugCommand = cmd({
 
             try {
               const client = new Client({
-                name: "opencode-debug",
+                name: "dwtcode-debug",
                 version: Installation.VERSION,
               })
               await client.connect(transport)

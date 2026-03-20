@@ -216,7 +216,7 @@ function App() {
   const promptRef = usePromptRef()
 
   useKeyboard((evt) => {
-    if (!Flag.OPENCODE_EXPERIMENTAL_DISABLE_COPY_ON_SELECT) return
+    if (!Flag.DWTCODE_EXPERIMENTAL_DISABLE_COPY_ON_SELECT) return
     if (!renderer.getSelection()) return
 
     // Windows Terminal-like behavior:
@@ -262,17 +262,17 @@ function App() {
 
   // Update terminal window title based on current route and session
   createEffect(() => {
-    if (!terminalTitleEnabled() || Flag.OPENCODE_DISABLE_TERMINAL_TITLE) return
+    if (!terminalTitleEnabled() || Flag.DWTCODE_DISABLE_TERMINAL_TITLE) return
 
     if (route.data.type === "home") {
-      renderer.setTerminalTitle("OpenCode")
+      renderer.setTerminalTitle("DWTCode")
       return
     }
 
     if (route.data.type === "session") {
       const session = sync.session.get(route.data.sessionID)
       if (!session || SessionApi.isDefaultTitle(session.title)) {
-        renderer.setTerminalTitle("OpenCode")
+        renderer.setTerminalTitle("DWTCode")
         return
       }
 
@@ -372,7 +372,7 @@ function App() {
         dialog.replace(() => <DialogSessionList />)
       },
     },
-    ...(Flag.OPENCODE_EXPERIMENTAL_WORKSPACES
+    ...(Flag.DWTCODE_EXPERIMENTAL_WORKSPACES
       ? [
           {
             title: "Manage workspaces",
@@ -733,7 +733,7 @@ function App() {
     toast.show({
       variant: "info",
       title: "Update Available",
-      message: `OpenCode v${evt.properties.version} is available. Run 'opencode upgrade' to update manually.`,
+      message: `DWTCode v${evt.properties.version} is available. Run 'dwtcode upgrade' to update manually.`,
       duration: 10000,
     })
   })
@@ -744,14 +744,14 @@ function App() {
       height={dimensions().height}
       backgroundColor={theme.background}
       onMouseDown={(evt) => {
-        if (!Flag.OPENCODE_EXPERIMENTAL_DISABLE_COPY_ON_SELECT) return
+        if (!Flag.DWTCODE_EXPERIMENTAL_DISABLE_COPY_ON_SELECT) return
         if (evt.button !== MouseButton.RIGHT) return
 
         if (!Selection.copy(renderer, toast)) return
         evt.preventDefault()
         evt.stopPropagation()
       }}
-      onMouseUp={Flag.OPENCODE_EXPERIMENTAL_DISABLE_COPY_ON_SELECT ? undefined : () => Selection.copy(renderer, toast)}
+      onMouseUp={Flag.DWTCODE_EXPERIMENTAL_DISABLE_COPY_ON_SELECT ? undefined : () => Selection.copy(renderer, toast)}
     >
       <Switch>
         <Match when={route.data.type === "home"}>
@@ -810,7 +810,7 @@ function ErrorComponent(props: {
     )
   }
 
-  issueURL.searchParams.set("opencode-version", Installation.VERSION)
+  issueURL.searchParams.set("dwtcode-version", Installation.VERSION)
 
   const copyIssueURL = () => {
     Clipboard.copy(issueURL.toString()).then(() => {

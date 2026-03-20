@@ -208,14 +208,14 @@ export namespace LLM {
       headers: {
         ...(input.model.providerID.startsWith("opencode")
           ? {
-              "x-opencode-project": Instance.project.id,
-              "x-opencode-session": input.sessionID,
-              "x-opencode-request": input.user.id,
-              "x-opencode-client": Flag.OPENCODE_CLIENT,
+              "x-dwtcode-project": Instance.project.id,
+              "x-dwtcode-session": input.sessionID,
+              "x-dwtcode-request": input.user.id,
+              "x-dwtcode-client": Flag.DWTCODE_CLIENT,
             }
           : input.model.providerID !== "anthropic"
             ? {
-                "User-Agent": `opencode/${Installation.VERSION}`,
+                "User-Agent": `dwtcode/${Installation.VERSION}`,
               }
             : undefined),
         ...input.model.headers,

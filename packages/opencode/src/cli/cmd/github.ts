@@ -135,7 +135,7 @@ type IssueQueryResponse = {
   }
 }
 
-const AGENT_USERNAME = "opencode-agent[bot]"
+const AGENT_USERNAME = "dwtcode-agent[bot]"
 const AGENT_REACTION = "eyes"
 const WORKFLOW_FILE = ".github/workflows/opencode.yml"
 
@@ -363,7 +363,7 @@ export const GithubInstallCommand = cmd({
 
             async function getInstallation() {
               return await fetch(
-                `https://api.opencode.ai/get_github_app_installation?owner=${app.owner}&repo=${app.repo}`,
+                `https://api.dwtcode.ai/get_github_app_installation?owner=${app.owner}&repo=${app.repo}`,
               )
                 .then((res) => res.json())
                 .then((data) => data.installation)
@@ -476,7 +476,7 @@ export const GithubRunCommand = cmd({
           ? (payload as IssueCommentEvent | IssuesEvent).issue.number
           : (payload as PullRequestEvent | PullRequestReviewCommentEvent).pull_request.number
       const runUrl = `/${owner}/${repo}/actions/runs/${runId}`
-      const shareBaseUrl = isMock ? "https://dev.opencode.ai" : "https://opencode.ai"
+      const shareBaseUrl = isMock ? "https://dev.dwtcode.ai" : "https://dwtcode.ai"
 
       let appToken: string
       let octoRest: Octokit
@@ -562,7 +562,7 @@ export const GithubRunCommand = cmd({
           await Session.share(session.id)
           return session.id.slice(-8)
         })()
-        console.log("opencode session", session.id)
+        console.log("dwtcode session", session.id)
 
         // Handle event types:
         // REPO_EVENTS (schedule, workflow_dispatch): no issue/PR context, output to logs/PR only
@@ -735,7 +735,7 @@ export const GithubRunCommand = cmd({
 
       function normalizeOidcBaseUrl(): string {
         const value = process.env["OIDC_BASE_URL"]
-        if (!value) return "https://api.opencode.ai"
+        if (!value) return "https://api.dwtcode.ai"
         return value.replace(/\/+$/, "")
       }
 
@@ -1027,7 +1027,7 @@ export const GithubRunCommand = cmd({
 
       async function getOidcToken() {
         try {
-          return await core.getIDToken("opencode-github-action")
+          return await core.getIDToken("dwtcode-github-action")
         } catch (error) {
           console.error("Failed to get OIDC token:", error instanceof Error ? error.message : error)
           throw new Error(

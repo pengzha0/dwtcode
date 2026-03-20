@@ -16,7 +16,7 @@ import { TuiConfig } from "@/config/tui"
 import { Instance } from "@/project/instance"
 
 declare global {
-  const OPENCODE_WORKER_PATH: string
+  const DWTCODE_WORKER_PATH: string
 }
 
 type RpcClient = ReturnType<typeof Rpc.client<typeof rpc>>
@@ -49,7 +49,7 @@ function createEventSource(client: RpcClient): EventSource {
 }
 
 async function target() {
-  if (typeof OPENCODE_WORKER_PATH !== "undefined") return OPENCODE_WORKER_PATH
+  if (typeof DWTCODE_WORKER_PATH !== "undefined") return DWTCODE_WORKER_PATH
   const dist = new URL("./cli/cmd/tui/worker.js", import.meta.url)
   if (await Filesystem.exists(fileURLToPath(dist))) return dist
   return new URL("./worker.ts", import.meta.url)

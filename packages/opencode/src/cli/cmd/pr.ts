@@ -87,10 +87,10 @@ export const PrCommand = cmd({
               const sessionMatch = prInfo.body.match(/https:\/\/opncd\.ai\/s\/([a-zA-Z0-9_-]+)/)
               if (sessionMatch) {
                 const sessionUrl = sessionMatch[0]
-                UI.println(`Found opencode session: ${sessionUrl}`)
+                UI.println(`Found dwtcode session: ${sessionUrl}`)
                 UI.println(`Importing session...`)
 
-                const importResult = await Process.text(["opencode", "import", sessionUrl], {
+                const importResult = await Process.text(["dwtcode", "import", sessionUrl], {
                   nothrow: true,
                 })
                 if (importResult.code === 0) {
@@ -109,23 +109,23 @@ export const PrCommand = cmd({
 
         UI.println(`Successfully checked out PR #${prNumber} as branch '${localBranchName}'`)
         UI.println()
-        UI.println("Starting opencode...")
+        UI.println("Starting dwtcode...")
         UI.println()
 
-        // Launch opencode TUI with session ID if available
+        // Launch dwtcode TUI with session ID if available
         const { spawn } = await import("child_process")
-        const opencodeArgs = sessionId ? ["-s", sessionId] : []
-        const opencodeProcess = spawn("opencode", opencodeArgs, {
+        const dwtcodeArgs = sessionId ? ["-s", sessionId] : []
+        const dwtcodeProcess = spawn("dwtcode", dwtcodeArgs, {
           stdio: "inherit",
           cwd: process.cwd(),
         })
 
         await new Promise<void>((resolve, reject) => {
-          opencodeProcess.on("exit", (code) => {
+          dwtcodeProcess.on("exit", (code) => {
             if (code === 0) resolve()
-            else reject(new Error(`opencode exited with code ${code}`))
+            else reject(new Error(`dwtcode exited with code ${code}`))
           })
-          opencodeProcess.on("error", reject)
+          dwtcodeProcess.on("error", reject)
         })
       },
     })

@@ -319,7 +319,7 @@ export namespace Provider {
           }
 
           // Region resolution precedence (highest to lowest):
-          // 1. options.region from opencode.json provider config
+          // 1. options.region from dwtcode.json provider config
           // 2. defaultRegion from AWS_REGION environment variable
           // 3. Default "us-east-1" (baked into defaultRegion)
           const region = options?.region ?? defaultRegion
@@ -402,8 +402,8 @@ export namespace Provider {
         autoload: false,
         options: {
           headers: {
-            "HTTP-Referer": "https://opencode.ai/",
-            "X-Title": "opencode",
+            "HTTP-Referer": "https://dwtcode.ai/",
+            "X-Title": "dwtcode",
           },
         },
       }
@@ -413,8 +413,8 @@ export namespace Provider {
         autoload: false,
         options: {
           headers: {
-            "http-referer": "https://opencode.ai/",
-            "x-title": "opencode",
+            "http-referer": "https://dwtcode.ai/",
+            "x-title": "dwtcode",
           },
         },
       }
@@ -512,8 +512,8 @@ export namespace Provider {
         autoload: false,
         options: {
           headers: {
-            "HTTP-Referer": "https://opencode.ai/",
-            "X-Title": "opencode",
+            "HTTP-Referer": "https://dwtcode.ai/",
+            "X-Title": "dwtcode",
           },
         },
       }
@@ -652,7 +652,7 @@ export namespace Provider {
         autoload: false,
         options: {
           headers: {
-            "X-Cerebras-3rd-Party-Integration": "opencode",
+            "X-Cerebras-3rd-Party-Integration": "dwtcode",
           },
         },
       }
@@ -662,8 +662,8 @@ export namespace Provider {
         autoload: false,
         options: {
           headers: {
-            "HTTP-Referer": "https://opencode.ai/",
-            "X-Title": "opencode",
+            "HTTP-Referer": "https://dwtcode.ai/",
+            "X-Title": "dwtcode",
           },
         },
       }
@@ -1089,7 +1089,7 @@ export namespace Provider {
           (providerID === ProviderID.openrouter && modelID === "openai/gpt-5-chat")
         )
           delete provider.models[modelID]
-        if (model.status === "alpha" && !Flag.OPENCODE_ENABLE_EXPERIMENTAL_MODELS) delete provider.models[modelID]
+        if (model.status === "alpha" && !Flag.DWTCODE_ENABLE_EXPERIMENTAL_MODELS) delete provider.models[modelID]
         if (model.status === "deprecated") delete provider.models[modelID]
         if (
           (configProvider?.blacklist && configProvider.blacklist.includes(modelID)) ||

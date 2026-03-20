@@ -3,7 +3,7 @@ import { Effect, Layer, Record, Result, Schema, ServiceMap } from "effect"
 import { Global } from "../global"
 import { Filesystem } from "../util/filesystem"
 
-export const OAUTH_DUMMY_KEY = "opencode-oauth-dummy-key"
+export const OAUTH_DUMMY_KEY = "dwtcode-oauth-dummy-key"
 
 export class Oauth extends Schema.Class<Oauth>("OAuth")({
   type: Schema.Literal("oauth"),

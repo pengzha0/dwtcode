@@ -15,7 +15,7 @@ process.chdir(dir)
 import { Script } from "@opencode-ai/script"
 import pkg from "../package.json"
 
-const modelsUrl = process.env.OPENCODE_MODELS_URL || "https://models.dev"
+const modelsUrl = process.env.DWTCODE_MODELS_URL || "https://models.dev"
 // Fetch and generate models.dev snapshot
 const modelsData = process.env.MODELS_DEV_API_JSON
   ? await Bun.file(process.env.MODELS_DEV_API_JSON).text()
@@ -59,6 +59,8 @@ console.log(`Loaded ${migrations.length} migrations`)
 const singleFlag = process.argv.includes("--single")
 const baselineFlag = process.argv.includes("--baseline")
 const skipInstall = process.argv.includes("--skip-install")
+const targetFlag = process.argv.find((a) => a.startsWith("--target="))?.split("=")[1] ??
+  (process.argv.includes("--target") ? process.argv[process.argv.indexOf("--target") + 1] : undefined)
 
 const allTargets: {
   os: string
@@ -123,33 +125,96 @@ const allTargets: {
   },
 ]
 
-const targets = singleFlag
+const targets = targetFlag
   ? allTargets.filter((item) => {
-      if (item.os !== process.platform || item.arch !== process.arch) {
-        return false
-      }
-
-      // When building for the current platform, prefer a single native binary by default.
-      // Baseline binaries require additional Bun artifacts and can be flaky to download.
-      if (item.avx2 === false) {
-        return baselineFlag
-      }
-
-      // also skip abi-specific builds for the same reason
-      if (item.abi !== undefined) {
-        return false
-      }
-
+      const [os, arch] = targetFlag.split("-")
+      if (item.os !== os || item.arch !== arch) return false
+      if (item.abi !== undefined) return false
+      if (item.avx2 === false) return baselineFlag
       return true
     })
-  : allTargets
+  : singleFlag
+    ? allTargets.filter((item) => {
+        if (item.os !== process.platform || item.arch !== process.arch) {
+          return false
+        }
 
-await $`rm -rf dist`
+        // When building for the current platform, prefer a single native binary by default.
+        // Baseline binaries require additional Bun artifacts and can be flaky to download.
+        if (item.avx2 === false) {
+          return baselineFlag
+        }
+
+        // also skip abi-specific builds for the same reason
+        if (item.abi !== undefined) {
+          return false
+        }
+
+        return true
+      })
+    : allTargets
+
+if (targetFlag || singleFlag) {
+  // Only clean target-specific dirs to preserve other builds
+  for (const item of targets) {
+    const name = [
+      pkg.name,
+      item.os === "win32" ? "windows" : item.os,
+      item.arch,
+      item.avx2 === false ? "baseline" : undefined,
+      item.abi === undefined ? undefined : item.abi,
+    ]
+      .filter(Boolean)
+      .join("-")
+    await $`rm -rf dist/${name}`
+  }
+} else {
+  await $`rm -rf dist`
+}
 
 const binaries: Record<string, string> = {}
 if (!skipInstall) {
-  await $`bun install --os="*" --cpu="*" @opentui/core@${pkg.dependencies["@opentui/core"]}`
-  await $`bun install --os="*" --cpu="*" @parcel/watcher@${pkg.dependencies["@parcel/watcher"]}`
+  if (targetFlag) {
+    // Install in /tmp to avoid Bun walking up and finding monorepo workspace config
+    const tmpDir = `/tmp/dwtcode-install-${Date.now()}`
+    await $`rm -rf ${tmpDir}`
+    await $`mkdir -p ${tmpDir}`
+    const [os, arch] = targetFlag.split("-")
+    const tmpPkg = {
+      name: "tmp-install",
+      private: true,
+      dependencies: {
+        "@opentui/core": pkg.dependencies["@opentui/core"],
+        "@parcel/watcher": pkg.dependencies["@parcel/watcher"],
+      },
+    }
+    await Bun.write(path.join(tmpDir, "package.json"), JSON.stringify(tmpPkg))
+    console.log(`Installing native deps for ${os}-${arch} in temp dir...`)
+    await $`bun install --os=${os} --cpu=${arch}`.cwd(tmpDir)
+    // Only copy packages that don't exist yet in project node_modules
+    const tmpModules = path.join(tmpDir, "node_modules")
+    for (const entry of await fs.promises.readdir(tmpModules)) {
+      const srcEntry = path.join(tmpModules, entry)
+      const dstEntry = path.join(dir, "node_modules", entry)
+      if (entry.startsWith("@")) {
+        // Scoped packages - check each sub-entry
+        for (const sub of await fs.promises.readdir(srcEntry)) {
+          const src = path.join(srcEntry, sub)
+          const dst = path.join(dstEntry, sub)
+          if (!fs.existsSync(dst)) {
+            await $`mkdir -p ${dstEntry}`
+            await $`cp -r ${src} ${dst}`
+          }
+        }
+      } else if (!fs.existsSync(dstEntry)) {
+        await $`cp -r ${srcEntry} ${dstEntry}`
+      }
+    }
+    await $`rm -rf ${tmpDir}`
+  } else {
+    await $`bun install --os="*" --cpu="*" @opentui/core@${pkg.dependencies["@opentui/core"]}`
+    await $`bun install --os="*" --cpu="*" @parcel/watcher@${pkg.dependencies["@parcel/watcher"]}`
+  }
 }
 for (const item of targets) {
   const name = [
@@ -184,18 +249,18 @@ for (const item of targets) {
       autoloadTsconfig: true,
       autoloadPackageJson: true,
       target: name.replace(pkg.name, "bun") as any,
-      outfile: `dist/${name}/bin/opencode`,
-      execArgv: [`--user-agent=opencode/${Script.version}`, "--use-system-ca", "--"],
+      outfile: `dist/${name}/bin/dwtcode`,
+      execArgv: [`--user-agent=dwtcode/${Script.version}`, "--use-system-ca", "--"],
       windows: {},
     },
     entrypoints: ["./src/index.ts", parserWorker, workerPath],
     define: {
-      OPENCODE_VERSION: `'${Script.version}'`,
-      OPENCODE_MIGRATIONS: JSON.stringify(migrations),
+      DWTCODE_VERSION: `'${Script.version}'`,
+      DWTCODE_MIGRATIONS: JSON.stringify(migrations),
       OTUI_TREE_SITTER_WORKER_PATH: bunfsRoot + workerRelativePath,
-      OPENCODE_WORKER_PATH: workerPath,
-      OPENCODE_CHANNEL: `'${Script.channel}'`,
-      OPENCODE_LIBC: item.os === "linux" ? `'${item.abi ?? "glibc"}'` : "",
+      DWTCODE_WORKER_PATH: workerPath,
+      DWTCODE_CHANNEL: `'${Script.channel}'`,
+      DWTCODE_LIBC: item.os === "linux" ? `'${item.abi ?? "glibc"}'` : "",
     },
   })
 

@@ -1332,7 +1332,7 @@ export namespace SessionPrompt {
     if (!userMessage) return input.messages
 
     // Original logic when experimental plan mode is disabled
-    if (!Flag.OPENCODE_EXPERIMENTAL_PLAN_MODE) {
+    if (!Flag.DWTCODE_EXPERIMENTAL_PLAN_MODE) {
       if (input.agent.name === "plan") {
         userMessage.parts.push({
           id: PartID.ascending(),

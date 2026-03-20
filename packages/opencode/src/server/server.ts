@@ -79,9 +79,9 @@ export namespace Server {
         // Allow CORS preflight requests to succeed without auth.
         // Browser clients sending Authorization headers will preflight with OPTIONS.
         if (c.req.method === "OPTIONS") return next()
-        const password = Flag.OPENCODE_SERVER_PASSWORD
+        const password = Flag.DWTCODE_SERVER_PASSWORD
         if (!password) return next()
-        const username = Flag.OPENCODE_SERVER_USERNAME ?? "opencode"
+        const username = Flag.DWTCODE_SERVER_USERNAME ?? "dwtcode"
         return basicAuth({ username, password })(c, next)
       })
       .use(async (c, next) => {
@@ -115,8 +115,8 @@ export namespace Server {
             )
               return input
 
-            // *.opencode.ai (https only, adjust if needed)
-            if (/^https:\/\/([a-z0-9-]+\.)*opencode\.ai$/.test(input)) {
+            // *.dwtcode.ai (https only, adjust if needed)
+            if (/^https:\/\/([a-z0-9-]+\.)*dwtcode\.ai$/.test(input)) {
               return input
             }
             if (opts?.cors?.includes(input)) {
@@ -223,9 +223,9 @@ export namespace Server {
         openAPIRouteHandler(app, {
           documentation: {
             info: {
-              title: "opencode",
+              title: "dwtcode",
               version: "0.0.3",
-              description: "opencode api",
+              description: "dwtcode api",
             },
             openapi: "3.1.1",
           },
@@ -255,7 +255,7 @@ export namespace Server {
         "/instance/dispose",
         describeRoute({
           summary: "Dispose instance",
-          description: "Clean up and dispose the current OpenCode instance, releasing all resources.",
+          description: "Clean up and dispose the current DWTCode instance, releasing all resources.",
           operationId: "instance.dispose",
           responses: {
             200: {
@@ -277,7 +277,7 @@ export namespace Server {
         "/path",
         describeRoute({
           summary: "Get paths",
-          description: "Retrieve the current working directory and related path information for the OpenCode instance.",
+          description: "Retrieve the current working directory and related path information for the DWTCode instance.",
           operationId: "path.get",
           responses: {
             200: {
@@ -340,7 +340,7 @@ export namespace Server {
         "/command",
         describeRoute({
           summary: "List commands",
-          description: "Get a list of all available commands in the OpenCode system.",
+          description: "Get a list of all available commands in the DWTCode system.",
           operationId: "command.list",
           responses: {
             200: {
@@ -414,7 +414,7 @@ export namespace Server {
         "/agent",
         describeRoute({
           summary: "List agents",
-          description: "Get a list of all available AI agents in the OpenCode system.",
+          description: "Get a list of all available AI agents in the DWTCode system.",
           operationId: "app.agents",
           responses: {
             200: {
@@ -436,7 +436,7 @@ export namespace Server {
         "/skill",
         describeRoute({
           summary: "List skills",
-          description: "Get a list of all available skills in the OpenCode system.",
+          description: "Get a list of all available skills in the DWTCode system.",
           operationId: "app.skills",
           responses: {
             200: {
@@ -557,11 +557,11 @@ export namespace Server {
       .all("/*", async (c) => {
         const path = c.req.path
 
-        const response = await proxy(`https://app.opencode.ai${path}`, {
+        const response = await proxy(`https://app.dwtcode.ai${path}`, {
           ...c.req,
           headers: {
             ...c.req.raw.headers,
-            host: "app.opencode.ai",
+            host: "app.dwtcode.ai",
           },
         })
         response.headers.set(
@@ -577,9 +577,9 @@ export namespace Server {
     const result = await generateSpecs(Default(), {
       documentation: {
         info: {
-          title: "opencode",
+          title: "dwtcode",
           version: "1.0.0",
-          description: "opencode api",
+          description: "dwtcode api",
         },
         openapi: "3.1.1",
       },
