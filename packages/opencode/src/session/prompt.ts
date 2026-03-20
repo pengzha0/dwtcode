@@ -47,6 +47,7 @@ import { LLM } from "./llm"
 import { iife } from "@/util/iife"
 import { Shell } from "@/shell/shell"
 import { Truncate } from "@/tool/truncation"
+import { NotFoundError } from "@/storage/db"
 
 // @ts-ignore
 globalThis.AI_SDK_LOG_WARNINGS = false
@@ -1964,7 +1965,10 @@ NOTE: At any point in time through this workflow you should feel free to ask the
       if (!cleaned) return
 
       const title = cleaned.length > 100 ? cleaned.substring(0, 97) + "..." : cleaned
-      return Session.setTitle({ sessionID: input.session.id, title })
+      return Session.setTitle({ sessionID: input.session.id, title }).catch((err) => {
+        if (NotFoundError.isInstance(err)) return
+        throw err
+      })
     }
   }
 }
