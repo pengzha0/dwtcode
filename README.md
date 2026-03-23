@@ -1,141 +1,154 @@
-<p align="center">
-  <a href="https://opencode.ai">
-    <picture>
-      <source srcset="packages/console/app/src/asset/logo-ornate-dark.svg" media="(prefers-color-scheme: dark)">
-      <source srcset="packages/console/app/src/asset/logo-ornate-light.svg" media="(prefers-color-scheme: light)">
-      <img src="packages/console/app/src/asset/logo-ornate-light.svg" alt="OpenCode logo">
-    </picture>
-  </a>
-</p>
-<p align="center">The open source AI coding agent.</p>
-<p align="center">
-  <a href="https://opencode.ai/discord"><img alt="Discord" src="https://img.shields.io/discord/1391832426048651334?style=flat-square&label=discord" /></a>
-  <a href="https://www.npmjs.com/package/opencode-ai"><img alt="npm" src="https://img.shields.io/npm/v/opencode-ai?style=flat-square" /></a>
-  <a href="https://github.com/anomalyco/opencode/actions/workflows/publish.yml"><img alt="Build status" src="https://img.shields.io/github/actions/workflow/status/anomalyco/opencode/publish.yml?style=flat-square&branch=dev" /></a>
-</p>
+# DWTCode
 
-<p align="center">
-  <a href="README.md">English</a> |
-  <a href="README.zh.md">简体中文</a> |
-  <a href="README.zht.md">繁體中文</a> |
-  <a href="README.ko.md">한국어</a> |
-  <a href="README.de.md">Deutsch</a> |
-  <a href="README.es.md">Español</a> |
-  <a href="README.fr.md">Français</a> |
-  <a href="README.it.md">Italiano</a> |
-  <a href="README.da.md">Dansk</a> |
-  <a href="README.ja.md">日本語</a> |
-  <a href="README.pl.md">Polski</a> |
-  <a href="README.ru.md">Русский</a> |
-  <a href="README.bs.md">Bosanski</a> |
-  <a href="README.ar.md">العربية</a> |
-  <a href="README.no.md">Norsk</a> |
-  <a href="README.br.md">Português (Brasil)</a> |
-  <a href="README.th.md">ไทย</a> |
-  <a href="README.tr.md">Türkçe</a> |
-  <a href="README.uk.md">Українська</a> |
-  <a href="README.bn.md">বাংলা</a> |
-  <a href="README.gr.md">Ελληνικά</a> |
-  <a href="README.vi.md">Tiếng Việt</a>
-</p>
+基于 [OpenCode](https://github.com/anomalyco/opencode) 二次开发的 AI 编程助手，支持 TUI（终端界面）、Web 界面和桌面应用。
 
-[![OpenCode Terminal UI](packages/web/src/assets/lander/screenshot.png)](https://opencode.ai)
+支持多种大模型提供商（Claude、OpenAI、Google、本地模型等），采用客户端/服务器架构，服务端在本地运行，客户端（TUI、Web、桌面）连接使用。
 
----
+## 项目结构
 
-### Installation
+Bun monorepo，使用 Turborepo 管理。主要包：
+
+| 包 | 说明 |
+|---|------|
+| `packages/opencode` | 核心业务逻辑、CLI、API 服务器、TUI |
+| `packages/app` | Web UI 组件（SolidJS + Vite + TailwindCSS） |
+| `packages/desktop` | 桌面应用（Tauri） |
+| `packages/desktop-electron` | 桌面应用（Electron） |
+| `sdks/vscode` | VSCode 插件 |
+
+## 环境要求
+
+- [Bun](https://bun.sh) >= 1.3.10
+- Git
+- Node.js >= 22（部分工具链依赖）
+
+## 从源码构建
+
+### 1. 安装依赖
 
 ```bash
-# YOLO
-curl -fsSL https://opencode.ai/install | bash
-
-# Package managers
-npm i -g opencode-ai@latest        # or bun/pnpm/yarn
-scoop install opencode             # Windows
-choco install opencode             # Windows
-brew install anomalyco/tap/opencode # macOS and Linux (recommended, always up to date)
-brew install opencode              # macOS and Linux (official brew formula, updated less)
-sudo pacman -S opencode            # Arch Linux (Stable)
-paru -S opencode-bin               # Arch Linux (Latest from AUR)
-mise use -g opencode               # Any OS
-nix run nixpkgs#opencode           # or github:anomalyco/opencode for latest dev branch
+bun install
 ```
 
-> [!TIP]
-> Remove versions older than 0.1.x before installing.
+### 2. 构建单平台可执行文件
 
-### Desktop App (BETA)
-
-OpenCode is also available as a desktop application. Download directly from the [releases page](https://github.com/anomalyco/opencode/releases) or [opencode.ai/download](https://opencode.ai/download).
-
-| Platform              | Download                              |
-| --------------------- | ------------------------------------- |
-| macOS (Apple Silicon) | `opencode-desktop-darwin-aarch64.dmg` |
-| macOS (Intel)         | `opencode-desktop-darwin-x64.dmg`     |
-| Windows               | `opencode-desktop-windows-x64.exe`    |
-| Linux                 | `.deb`, `.rpm`, or AppImage           |
+构建当前平台的独立二进制文件：
 
 ```bash
-# macOS (Homebrew)
-brew install --cask opencode-desktop
-# Windows (Scoop)
-scoop bucket add extras; scoop install extras/opencode-desktop
+cd packages/opencode
+bun run build --single
 ```
 
-#### Installation Directory
+构建完成后，二进制文件位于 `packages/opencode/dist/dwtcode-<平台>-<架构>/bin/dwtcode`。
 
-The install script respects the following priority order for the installation path:
-
-1. `$OPENCODE_INSTALL_DIR` - Custom installation directory
-2. `$XDG_BIN_DIR` - XDG Base Directory Specification compliant path
-3. `$HOME/bin` - Standard user binary directory (if it exists or can be created)
-4. `$HOME/.opencode/bin` - Default fallback
+### 3. 构建指定平台
 
 ```bash
-# Examples
-OPENCODE_INSTALL_DIR=/usr/local/bin curl -fsSL https://opencode.ai/install | bash
-XDG_BIN_DIR=$HOME/.local/bin curl -fsSL https://opencode.ai/install | bash
+# 构建 Linux x64
+cd packages/opencode
+bun run build --target=linux-x64
+
+# 构建 Linux arm64
+bun run build --target=linux-arm64
+
+# 构建 macOS arm64 (Apple Silicon)
+bun run build --target=darwin-arm64
+
+# 构建 Windows x64
+bun run build --target=win32-x64
 ```
 
-### Agents
+### 4. 构建 baseline 版本（无 AVX2 指令集要求）
 
-OpenCode includes two built-in agents you can switch between with the `Tab` key.
+适用于不支持 AVX2 的旧 CPU：
 
-- **build** - Default, full-access agent for development work
-- **plan** - Read-only agent for analysis and code exploration
-  - Denies file edits by default
-  - Asks permission before running bash commands
-  - Ideal for exploring unfamiliar codebases or planning changes
+```bash
+cd packages/opencode
+bun run build --single --baseline
+```
 
-Also included is a **general** subagent for complex searches and multistep tasks.
-This is used internally and can be invoked using `@general` in messages.
+### 5. 构建全平台
 
-Learn more about [agents](https://opencode.ai/docs/agents).
+```bash
+cd packages/opencode
+bun run build
+```
 
-### Documentation
+## 开发模式
 
-For more info on how to configure OpenCode, [**head over to our docs**](https://opencode.ai/docs).
+```bash
+# 启动 TUI 开发模式
+bun dev
 
-### Contributing
+# 对指定目录启动
+bun dev /your/project/path
 
-If you're interested in contributing to OpenCode, please read our [contributing docs](./CONTRIBUTING.md) before submitting a pull request.
+# 启动无头 API 服务器（端口 4096）
+bun dev serve
 
-### Building on OpenCode
+# 启动 API 服务器 + Web 界面
+bun dev web
 
-If you are working on a project that's related to OpenCode and is using "opencode" as part of its name, for example "opencode-dashboard" or "opencode-mobile", please add a note to your README to clarify that it is not built by the OpenCode team and is not affiliated with us in any way.
+# 启动 Web 应用开发服务器（需先启动 API 服务器）
+bun run --cwd packages/app dev
+```
 
-### FAQ
+## 测试
 
-#### How is this different from Claude Code?
+测试**不能**从仓库根目录运行，需要进入对应包目录：
 
-It's very similar to Claude Code in terms of capability. Here are the key differences:
+```bash
+cd packages/opencode && bun test
+cd packages/app && bun test
+```
 
-- 100% open source
-- Not coupled to any provider. Although we recommend the models we provide through [OpenCode Zen](https://opencode.ai/zen), OpenCode can be used with Claude, OpenAI, Google, or even local models. As models evolve, the gaps between them will close and pricing will drop, so being provider-agnostic is important.
-- Out-of-the-box LSP support
-- A focus on TUI. OpenCode is built by neovim users and the creators of [terminal.shop](https://terminal.shop); we are going to push the limits of what's possible in the terminal.
-- A client/server architecture. This, for example, can allow OpenCode to run on your computer while you drive it remotely from a mobile app, meaning that the TUI frontend is just one of the possible clients.
+## 类型检查
 
----
+```bash
+cd packages/opencode && bun typecheck
+cd packages/app && bun typecheck
+```
 
-**Join our community** [Discord](https://discord.gg/opencode) | [X.com](https://x.com/opencode)
+## 部署到内网环境
+
+构建完成后，可使用 `packages/opencode/dwtcode-deploy-baseline/` 中的部署包进行内网部署。详细步骤请参考 [部署指南](packages/opencode/dwtcode-deploy-baseline/README.md)。
+
+## 配置
+
+DWTCode 支持多级配置，优先级从低到高：
+
+1. 全局配置 `~/.config/dwtcode/dwtcode.jsonc`
+2. 项目配置 `opencode.jsonc`（项目根目录）
+3. `.opencode` 目录（agents、commands、plugins）
+4. 环境变量
+
+### 配置文件示例
+
+```jsonc
+{
+  "provider": {
+    "intranet-llm": {
+      "name": "内网大模型",
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://your-llm-server:port/v1"
+      },
+      "models": {
+        "your-model": {
+          "name": "Your Model Name",
+          "tool_call": true,
+          "limit": {
+            "context": 131072,
+            "output": 16384
+          }
+        }
+      }
+    }
+  },
+  "model": "intranet-llm/your-model"
+}
+```
+
+## 许可证
+
+MIT

@@ -1,0 +1,27 @@
+{
+  "$schema": "https://dwtcode.ai/config.json",
+  "provider": {
+    "intranet-llm": {
+      "name": "内网大模型",
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "http://192.168.210.241:1789/v1"
+      },
+      "models": {
+        "llm_32b": {
+          "name": "LLM 32B",
+          "temperature": true,
+          "tool_call": true,
+          "attachment": false,
+          "reasoning": false,
+          "limit": {
+            "context": 131072,
+            "output": 16384
+          }
+        }
+      }
+    }
+  },
+  "model": "intranet-llm/llm_32b",
+  "autoupdate": false
+}

@@ -29,6 +29,8 @@ logs/
 *.bun-build
 tsconfig.tsbuildinfo
 packages/opencode/dwtcode-deploy*
+!packages/opencode/dwtcode-deploy-baseline/
+packages/opencode/dwtcode-deploy-baseline/dwtcode
 
 # dwtcode local files
 .claude/
